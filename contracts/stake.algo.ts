@@ -91,16 +91,10 @@ class Stake extends Contract {
     });
   }
 
-  stake(amount: uint64, stakingToken: Asset): void {
+  stake(amount: uint64, axfer: AssetTransferTxn): void {
     assert(amount > 0);
     // transfer token to contract
-
-    sendAssetTransfer({
-      sender: this.txn.sender,
-      xferAsset: this.stakingToken.value,
-      assetReceiver: this.app.address,
-      assetAmount: amount,
-    });
+    verifyTxn(axfer, { assetReceiver: this.app.address });
     // this.balanceOf(this.txn.sender).value = this.balanceOf(this.txn.sender).value + amount;
     // this.totalSupply.value = this.totalSupply.value + amount;
     // this.updateReward(this.txn.sender);

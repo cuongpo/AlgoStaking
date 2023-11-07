@@ -74,8 +74,8 @@
           "desc": ""
         },
         {
-          "name": "stakingToken",
-          "type": "asset",
+          "name": "axfer",
+          "type": "axfer",
           "desc": ""
         }
       ],
