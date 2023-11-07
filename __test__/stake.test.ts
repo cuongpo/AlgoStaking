@@ -1,5 +1,7 @@
 import { describe, test, expect, beforeAll, beforeEach } from '@jest/globals';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
+import * as algokit from '@algorandfoundation/algokit-utils';
+import algosdk, { Kmd } from 'algosdk';
 import { StakeClient } from '../contracts/clients/StakeClient';
 
 const fixture = algorandFixture();
@@ -7,12 +9,24 @@ const fixture = algorandFixture();
 let appClient: StakeClient;
 
 describe('Stake', () => {
+  let sender: algosdk.Account;
+  let stakingToken: bigint;
   beforeEach(fixture.beforeEach);
 
   beforeAll(async () => {
     await fixture.beforeEach();
-    const { algod, testAccount } = fixture.context;
 
+    const { algod, testAccount, kmd } = fixture.context;
+
+    sender = await algokit.getOrCreateKmdWalletAccount(
+      {
+        name: 'abc',
+        fundWith: algokit.algos(100),
+      },
+      algod,
+      kmd
+    );
+    const duration = BigInt(100);
     appClient = new StakeClient(
       {
         sender: testAccount,
@@ -22,20 +36,22 @@ describe('Stake', () => {
       algod
     );
 
-    await appClient.create.createApplication({});
+    await appClient.create.createApplication({ duration });
   });
 
-  test('sum', async () => {
-    const a = 13;
-    const b = 37;
-    const sum = await appClient.doMath({ a, b, operation: 'sum' });
-    expect(sum.return?.valueOf()).toBe(BigInt(a + b));
-  });
+  // bootstrap
+  test('bootstrap', async () => {
+    await appClient.appClient.fundAppAccount(algokit.microAlgos(200_000));
+    const bootstrapResult = await appClient.bootstrap(
+      {},
+      {
+        sendParams: {
+          fee: algokit.microAlgos(2000),
+        },
+      }
+    );
 
-  test('difference', async () => {
-    const a = 13;
-    const b = 37;
-    const diff = await appClient.doMath({ a, b, operation: 'difference' });
-    expect(diff.return?.valueOf()).toBe(BigInt(a >= b ? a - b : b - a));
+    stakingToken = bootstrapResult.return!.valueOf();
+    console.log(stakingToken);
   });
 });

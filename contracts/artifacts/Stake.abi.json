@@ -51,6 +51,39 @@
       }
     },
     {
+      "name": "lastTimeRewardApplicable",
+      "args": [],
+      "desc": "",
+      "returns": {
+        "type": "uint64",
+        "desc": ""
+      }
+    },
+    {
+      "name": "rewardPerToken",
+      "args": [],
+      "desc": "",
+      "returns": {
+        "type": "uint64",
+        "desc": ""
+      }
+    },
+    {
+      "name": "earned",
+      "args": [
+        {
+          "name": "account",
+          "type": "address",
+          "desc": ""
+        }
+      ],
+      "desc": "",
+      "returns": {
+        "type": "uint64",
+        "desc": ""
+      }
+    },
+    {
       "name": "appOptedinAsset",
       "args": [
         {
@@ -69,13 +102,67 @@
       "name": "stake",
       "args": [
         {
-          "name": "amount",
-          "type": "uint64",
+          "name": "axfer",
+          "type": "axfer",
           "desc": ""
         },
         {
-          "name": "axfer",
-          "type": "axfer",
+          "name": "account",
+          "type": "address",
+          "desc": ""
+        }
+      ],
+      "desc": "",
+      "returns": {
+        "type": "void",
+        "desc": ""
+      }
+    },
+    {
+      "name": "withdraw",
+      "args": [
+        {
+          "name": "amount",
+          "type": "uint64",
+          "desc": ""
+        }
+      ],
+      "desc": "",
+      "returns": {
+        "type": "void",
+        "desc": ""
+      }
+    },
+    {
+      "name": "getReward",
+      "args": [],
+      "desc": "",
+      "returns": {
+        "type": "void",
+        "desc": ""
+      }
+    },
+    {
+      "name": "setRewardsDuration",
+      "args": [
+        {
+          "name": "duration",
+          "type": "uint64",
+          "desc": ""
+        }
+      ],
+      "desc": "",
+      "returns": {
+        "type": "void",
+        "desc": ""
+      }
+    },
+    {
+      "name": "notifyRewardAmount",
+      "args": [
+        {
+          "name": "amount",
+          "type": "uint64",
           "desc": ""
         }
       ],
