@@ -107,8 +107,8 @@
           "desc": ""
         },
         {
-          "name": "account",
-          "type": "address",
+          "name": "stakingToken",
+          "type": "asset",
           "desc": ""
         }
       ],

@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Contract } from '@algorandfoundation/tealscript';
 
 // eslint-disable-next-line no-unused-vars
@@ -21,7 +22,7 @@ class Stake extends Contract {
   totalSupply = GlobalStateKey<uint64>();
 
   balanceOf = BoxMap<Address, uint64>({ prefix: 'b' });
-
+  
   // mint Token
   bootstrap(): Asset {
     verifyTxn(this.txn, { sender: this.app.creator });
@@ -91,10 +92,14 @@ class Stake extends Contract {
     });
   }
 
-  stake(axfer: AssetTransferTxn, account: Address): void {
+  stake(axfer: AssetTransferTxn, stakingToken: Asset): void {
+    /// Verify axfer
+    verifyTxn(axfer, { assetReceiver: this.app.address });
+    this.balanceOf(this.txn.sender).value = 10;
+    // this.balanceOf(this.txn.sender).value = this.balanceOf(this.txn.sender).value + axfer.assetAmount;
 
-    this.balanceOf(axfer.sender).value = this.balanceOf(axfer.sender).value + axfer.assetAmount;
-    //this.totalSupply.value = this.totalSupply.value + axfer.assetAmount;
+    // this.balanceOf(axfer.sender).value = this.balanceOf(axfer.sender).value + axfer.assetAmount;
+    // this.totalSupply.value = this.totalSupply.value + axfer.assetAmount;
     // this.updateReward(this.txn.sender);
   }
 
