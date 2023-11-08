@@ -171,6 +171,51 @@
         "type": "void",
         "desc": ""
       }
+    },
+    {
+      "name": "getRewardData",
+      "args": [
+        {
+          "name": "account",
+          "type": "account",
+          "desc": ""
+        }
+      ],
+      "desc": "",
+      "returns": {
+        "type": "uint64",
+        "desc": ""
+      }
+    },
+    {
+      "name": "getBalanceData",
+      "args": [
+        {
+          "name": "account",
+          "type": "account",
+          "desc": ""
+        }
+      ],
+      "desc": "",
+      "returns": {
+        "type": "uint64",
+        "desc": ""
+      }
+    },
+    {
+      "name": "getUserRewardPerTokenPaid",
+      "args": [
+        {
+          "name": "account",
+          "type": "account",
+          "desc": ""
+        }
+      ],
+      "desc": "",
+      "returns": {
+        "type": "uint64",
+        "desc": ""
+      }
     }
   ]
 }

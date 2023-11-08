@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeAll, beforeEach } from '@jest/globals';
-import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
+import { algorandFixture, getTestAccount } from '@algorandfoundation/algokit-utils/testing';
 import * as algokit from '@algorandfoundation/algokit-utils';
 import algosdk, { Kmd } from 'algosdk';
 import { StakeClient } from '../contracts/clients/StakeClient';
@@ -37,6 +37,18 @@ describe('Stake', () => {
     );
 
     await appClient.create.createApplication({ duration });
+    const text = 'p-';
+    const addressBytes = new TextEncoder().encode('ZVYWEVBGF6JH6FHTXKCNIMN6NPDRURKFVJZ7OPURL2WS7C7KLDQF2AP4V4');
+    const combinedArray = new Uint8Array(text.length + addressBytes.length);
+
+    // Copy the text and addressBytes into combinedArray
+    combinedArray.set(new TextEncoder().encode(text), 0);
+    combinedArray.set(addressBytes, text.length);
+
+    const boxRef = combinedArray;
+
+    console.log(stakingToken);
+    console.log(boxRef);
   });
 
   // bootstrap

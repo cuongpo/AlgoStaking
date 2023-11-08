@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { Contract } from '@algorandfoundation/tealscript';
 
+type accData = {balance: uint64, userRewardPerTokenPaid: uint64, rewards: uint64};
 // eslint-disable-next-line no-unused-vars
 class Stake extends Contract {
   stakingToken = GlobalStateKey<Asset>();
@@ -15,14 +16,10 @@ class Stake extends Contract {
 
   rewardPerTokenStored = GlobalStateKey<uint64>();
 
-  userRewardPerTokenPaid = BoxMap<Address, uint64>({ prefix: 'u' });
-
-  rewards = BoxMap<Address, uint64>({ prefix: 'r' });
-
   totalSupply = GlobalStateKey<uint64>();
 
-  balanceOf = BoxMap<Address, uint64>({ prefix: 'b' });
-  
+  accData = BoxMap<Account, accData>({ });
+
   // mint Token
   bootstrap(): Asset {
     verifyTxn(this.txn, { sender: this.app.creator });
@@ -40,6 +37,13 @@ class Stake extends Contract {
       assetReceiver: this.txn.sender,
       assetAmount: 1,
     });
+    const acc: accData = {
+      balance: 0,
+      rewards: 0,
+      userRewardPerTokenPaid: 0,
+    };
+    this.accData(this.txn.sender).value = acc;
+
   }
 
   getStakingToken(): Asset {
@@ -71,17 +75,17 @@ class Stake extends Contract {
 
   earned(account: Address): uint64 {
     return (
-      (this.balanceOf(account).value * (this.rewardPerToken() - this.userRewardPerTokenPaid(account).value)) /
+      (this.accData(account).value.balance * (this.rewardPerToken() - this.accData(account).value.userRewardPerTokenPaid)) /
         1000000000000000000 +
-      this.rewards(account).value
+      this.accData(account).value.rewards
     );
   }
 
   private updateReward(account: Address): void {
     this.rewardPerTokenStored.value = this.rewardPerToken();
     this.updatedAt.value = this.lastTimeRewardApplicable();
-    this.rewards(account).value = this.earned(account);
-    this.userRewardPerTokenPaid(account).value = this.rewardPerTokenStored.value;
+    this.accData(account).value.rewards = this.earned(account);
+    this.accData(account).value.userRewardPerTokenPaid = this.rewardPerTokenStored.value;
   }
 
   appOptedinAsset(stakingToken: Asset): void {
@@ -95,18 +99,15 @@ class Stake extends Contract {
   stake(axfer: AssetTransferTxn, stakingToken: Asset): void {
     /// Verify axfer
     verifyTxn(axfer, { assetReceiver: this.app.address });
-    this.balanceOf(this.txn.sender).value = 10;
-    // this.balanceOf(this.txn.sender).value = this.balanceOf(this.txn.sender).value + axfer.assetAmount;
-
-    // this.balanceOf(axfer.sender).value = this.balanceOf(axfer.sender).value + axfer.assetAmount;
-    // this.totalSupply.value = this.totalSupply.value + axfer.assetAmount;
-    // this.updateReward(this.txn.sender);
+    this.accData(this.txn.sender).value.balance = this.accData(this.txn.sender).value.balance + axfer.assetAmount;
+    this.totalSupply.value = this.totalSupply.value + axfer.assetAmount;
+    this.updateReward(this.txn.sender);
   }
 
   withdraw(amount: uint64): void {
     assert(amount > 0);
-    assert(this.balanceOf(this.txn.sender).value > amount);
-    this.balanceOf(this.txn.sender).value = this.balanceOf(this.txn.sender).value - amount;
+    assert(this.accData(this.txn.sender).value.balance > amount);
+    this.accData(this.txn.sender).value.balance = this.accData(this.txn.sender).value.balance - amount;
     this.totalSupply.value = this.totalSupply.value - amount;
     sendAssetTransfer({
       xferAsset: this.stakingToken.value,
@@ -117,9 +118,9 @@ class Stake extends Contract {
   }
 
   getReward(): void {
-    const reward = this.rewards(this.txn.sender).value;
+    const reward = this.accData(this.txn.sender).value.rewards;
     if (reward > 0) {
-      this.rewards(this.txn.sender).value = 0;
+      this.accData(this.txn.sender).value.rewards = 0;
       sendAssetTransfer({
         xferAsset: this.stakingToken.value,
         assetReceiver: this.txn.sender,
@@ -146,5 +147,17 @@ class Stake extends Contract {
     // Reward Amount > Balance
     this.updatedAt.value = globals.latestTimestamp;
     this.finishAt.value = globals.latestTimestamp + this.duration.value;
+  }
+
+  getRewardData(account: Account): uint64 {
+    return this.accData(account).value.rewards;
+  }
+
+  getBalanceData(account: Account): uint64 {
+    return this.accData(account).value.balance;
+  }
+
+  getUserRewardPerTokenPaid(account: Account): uint64 {
+    return this.accData(account).value.userRewardPerTokenPaid;
   }
 }
