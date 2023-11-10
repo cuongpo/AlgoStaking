@@ -24,6 +24,7 @@ type Props = {
 
 const StakeCreateApplication = (props: Props) => {
   const [loading, setLoading] = useState<boolean>(false)
+  const [duration, setDuration] = useState<number>()
   const { activeAddress, signer } = useWallet()
   const sender = { signer, addr: activeAddress! }
 
@@ -32,7 +33,7 @@ const StakeCreateApplication = (props: Props) => {
     console.log(`Calling createApplication`)
     await props.typedClient.create.createApplication(
       {
-        duration: props.duration,
+        duration,
       },
       { sender },
     )
@@ -41,7 +42,12 @@ const StakeCreateApplication = (props: Props) => {
 
   return (
     <div>
-      <input type="text" className="input input-bordered m-2" onChange={(e) => console.log(e.currentTarget.value)}/>
+      <input type="text" className="input input-bordered m-2" onChange={(e) => {
+        const inputValue = e.currentTarget.value;
+        const numericValue = inputValue !== '' ? parseFloat(inputValue) : undefined;
+        setDuration(numericValue);
+      }} />
+
       <button className={props.buttonClass} onClick={callMethod}>
         {loading ? props.buttonLoadingNode || props.buttonNode : props.buttonNode}
       </button>

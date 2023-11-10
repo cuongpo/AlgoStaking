@@ -61,7 +61,7 @@ export default function App() {
     id: 0
     },algodClient
   )
-  const duration = 100;
+
 
   const walletProviders = useInitializeProviders({
     providers: providersArray,
@@ -97,7 +97,6 @@ export default function App() {
                   buttonLoadingNode={<span className="loading loading-spinner" />}
                   buttonNode="Call createApplication"
                   typedClient={typedClient}
-                  duration={duration}
                 />
               )}
               <ConnectWallet openModal={openWalletModal} closeModal={toggleWalletModal} />
