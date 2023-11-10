@@ -8,7 +8,9 @@ import { useState } from 'react'
 import ConnectWallet from './components/ConnectWallet'
 import Transact from './components/Transact'
 import { getAlgodConfigFromViteEnvironment, getKmdConfigFromViteEnvironment } from './utils/network/getAlgoClientConfigs'
-
+import StakeCreateApplication from './components/StakeCreateApplication'
+import {StakeClient} from "./contracts/StakeClient"
+import * as algokit from '@algorandfoundation/algokit-utils'
 let providersArray: ProvidersArray
 if (import.meta.env.VITE_ALGOD_NETWORK === '') {
   const kmdConfig = getKmdConfigFromViteEnvironment()
@@ -39,7 +41,7 @@ export default function App() {
   const [openWalletModal, setOpenWalletModal] = useState<boolean>(false)
   const [openDemoModal, setOpenDemoModal] = useState<boolean>(false)
   const { activeAddress } = useWallet()
-
+  
   const toggleWalletModal = () => {
     setOpenWalletModal(!openWalletModal)
   }
@@ -49,6 +51,17 @@ export default function App() {
   }
 
   const algodConfig = getAlgodConfigFromViteEnvironment()
+  const algodClient = algokit.getAlgoClient({
+    server: algodConfig.server,
+    port: algodConfig.port,
+    token: algodConfig.token
+  })
+  const typedClient = new StakeClient({
+    resolveBy: 'id',
+    id: 0
+    },algodClient
+  )
+  const duration = 100;
 
   const walletProviders = useInitializeProviders({
     providers: providersArray,
@@ -70,32 +83,23 @@ export default function App() {
               <h1 className="text-4xl">
                 Welcome to <div className="font-bold">AlgoStaking 🙂</div>
               </h1>
-              <p className="py-6">
-                This is frontend for AlgoStaking.
-              </p>
+              <p className="py-6"> This is frontend for AlgoStaking.</p>
 
               <div className="grid">
-                <a
-                  data-test-id="getting-started"
-                  className="btn btn-primary m-2"
-                  target="_blank"
-                  href="https://github.com/algorandfoundation/algokit-cli"
-                >
-                  Getting started
-                </a>
-
-                <div className="divider" />
                 <button data-test-id="connect-wallet" className="btn m-2" onClick={toggleWalletModal}>
                   Wallet Connection
                 </button>
-
-                {activeAddress && (
-                  <button data-test-id="transactions-demo" className="btn m-2" onClick={toggleDemoModal}>
-                    Transactions Demo
-                  </button>
-                )}
+                <div className="divider" />
               </div>
-
+              {activeAddress && (
+                <StakeCreateApplication
+                  buttonClass="btn m-2"
+                  buttonLoadingNode={<span className="loading loading-spinner" />}
+                  buttonNode="Call createApplication"
+                  typedClient={typedClient}
+                  duration={duration}
+                />
+              )}
               <ConnectWallet openModal={openWalletModal} closeModal={toggleWalletModal} />
               <Transact openModal={openDemoModal} setModalState={setOpenDemoModal} />
             </div>
