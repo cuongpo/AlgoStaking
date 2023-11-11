@@ -53,7 +53,7 @@ describe('Stake', () => {
 
   // bootstrap
   test('bootstrap', async () => {
-    await appClient.appClient.fundAppAccount(algokit.microAlgos(200_000));
+    await appClient.appClient.fundAppAccount(algokit.microAlgos(500_000));
     const bootstrapResult = await appClient.bootstrap(
       {},
       {

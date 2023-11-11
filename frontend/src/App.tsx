@@ -4,11 +4,12 @@ import { PeraWalletConnect } from '@perawallet/connect'
 import { PROVIDER_ID, ProvidersArray, WalletProvider, useInitializeProviders, useWallet } from '@txnlab/use-wallet'
 import algosdk from 'algosdk'
 import { SnackbarProvider } from 'notistack'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import ConnectWallet from './components/ConnectWallet'
 import Transact from './components/Transact'
 import { getAlgodConfigFromViteEnvironment, getKmdConfigFromViteEnvironment } from './utils/network/getAlgoClientConfigs'
 import StakeCreateApplication from './components/StakeCreateApplication'
+import StakeFaucet  from './components/StakeFaucet'
 import {StakeClient} from "./contracts/StakeClient"
 import * as algokit from '@algorandfoundation/algokit-utils'
 let providersArray: ProvidersArray
@@ -40,14 +41,32 @@ if (import.meta.env.VITE_ALGOD_NETWORK === '') {
 export default function App() {
   const [openWalletModal, setOpenWalletModal] = useState<boolean>(false)
   const [openDemoModal, setOpenDemoModal] = useState<boolean>(false)
+  const [appID, setAppID] = useState<number>(0)
+  const [duration, setDuration] = useState<number>(0)
   const { activeAddress } = useWallet()
-  
+  const stakingToken = 1014;
+  // Every time the app Id changes
+  // Get the corresponding total Suplly
+  const getDuration = async () => {
+    try {
+      const state = await typedClient.getGlobalState()
+      setDuration(state.duration!.asNumber)
+    } catch (e) {
+      setDuration("Invalid App Id!")
+    }
+  }
+  // Every tim the App Id Changs
+  // call getProposal
+  useEffect(() => {
+    if (appID === 0) {
+      setDuration('input appId')
+      return
+    }
+    getDuration()
+  }, [appID])
+
   const toggleWalletModal = () => {
     setOpenWalletModal(!openWalletModal)
-  }
-
-  const toggleDemoModal = () => {
-    setOpenDemoModal(!openDemoModal)
   }
 
   const algodConfig = getAlgodConfigFromViteEnvironment()
@@ -56,12 +75,13 @@ export default function App() {
     port: algodConfig.port,
     token: algodConfig.token
   })
-  const typedClient = new StakeClient({
-    resolveBy: 'id',
-    id: 0
-    },algodClient
+  const typedClient = new StakeClient(
+    {
+      resolveBy: 'id',
+      id: appID,
+    },
+    algodClient,
   )
-
 
   const walletProviders = useInitializeProviders({
     providers: providersArray,
@@ -90,13 +110,22 @@ export default function App() {
                   Wallet Connection
                 </button>
                 <div className="divider" />
+                <h1 className="font-bold m-2">Pool info</h1>
               </div>
-              {activeAddress && (
-                <StakeCreateApplication
+
+
+              <h1 className="font-bold m-2">Pool Info</h1>
+              <textarea className="textarea textarea-bordered m-2"  value={duration} />
+              <textarea className="textarea textarea-bordered m-2"  value={stakingToken} />
+              <div className="divider" />
+              {activeAddress && appID !==0 && (
+                <StakeFaucet
                   buttonClass="btn m-2"
                   buttonLoadingNode={<span className="loading loading-spinner" />}
-                  buttonNode="Call createApplication"
+                  buttonNode="Call faucet"
                   typedClient={typedClient}
+                  stakingToken={stakingToken}
+                  algodClient={algodClient}
                 />
               )}
               <ConnectWallet openModal={openWalletModal} closeModal={toggleWalletModal} />

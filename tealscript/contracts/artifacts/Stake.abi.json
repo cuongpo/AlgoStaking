@@ -216,6 +216,15 @@
         "type": "uint64",
         "desc": ""
       }
+    },
+    {
+      "name": "getTotalSupply",
+      "args": [],
+      "desc": "",
+      "returns": {
+        "type": "uint64",
+        "desc": ""
+      }
     }
   ]
 }

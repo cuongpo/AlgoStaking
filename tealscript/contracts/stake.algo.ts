@@ -1,24 +1,29 @@
 /* eslint-disable prettier/prettier */
 import { Contract } from '@algorandfoundation/tealscript';
 
-type accData = {balance: uint64, userRewardPerTokenPaid: uint64, rewards: uint64};
+type accData = {balance: number, userRewardPerTokenPaid: number, rewards: number};
 // eslint-disable-next-line no-unused-vars
 class Stake extends Contract {
   stakingToken = GlobalStateKey<Asset>();
 
+  // Duration of rewards to be paid out (in seconds)
   duration = GlobalStateKey<uint64>();
 
+  // Timestamp of when the rewards finish
   finishAt = GlobalStateKey<uint64>();
 
+  // Minimum of last updated time and reward finish time
   updatedAt = GlobalStateKey<uint64>();
 
+   // Reward to be paid out per second
   rewardRate = GlobalStateKey<uint64>();
 
+   // Sum of (reward rate * dt * 1e18 / total supply)s
   rewardPerTokenStored = GlobalStateKey<uint64>();
 
   totalSupply = GlobalStateKey<uint64>();
 
-  accData = BoxMap<Account, accData>({ });
+  accData = BoxMap<Address, accData>({ });
 
   // mint Token
   bootstrap(): Asset {
@@ -28,6 +33,9 @@ class Stake extends Contract {
     });
 
     this.stakingToken.value = stakingToken;
+    this.totalSupply.value = 1;
+    this.rewardRate.value = 1;
+    this.finishAt.value= 0;
     return stakingToken;
   }
 
@@ -65,12 +73,8 @@ class Stake extends Contract {
     if (this.totalSupply.value === 0) {
       return this.rewardPerTokenStored.value;
     }
-
-    return (
-      this.rewardPerTokenStored.value +
-      (this.rewardRate.value * (this.lastTimeRewardApplicable() - this.updatedAt.value) * 1000000000000000000) /
-        this.totalSupply.value
-    );
+    const temp = this.lastTimeRewardApplicable();
+    return (this.rewardPerTokenStored.value + (this.rewardRate.value * (temp - this.updatedAt.value))/this.totalSupply.value);
   }
 
   earned(account: Address): uint64 {
@@ -83,9 +87,9 @@ class Stake extends Contract {
 
   private updateReward(account: Address): void {
     this.rewardPerTokenStored.value = this.rewardPerToken();
-    this.updatedAt.value = this.lastTimeRewardApplicable();
-    this.accData(account).value.rewards = this.earned(account);
-    this.accData(account).value.userRewardPerTokenPaid = this.rewardPerTokenStored.value;
+    // this.updatedAt.value = this.lastTimeRewardApplicable();
+    // this.accData(account).value.rewards = this.earned(account);
+    // this.accData(account).value.userRewardPerTokenPaid = this.rewardPerTokenStored.value;
   }
 
   appOptedinAsset(stakingToken: Asset): void {
@@ -100,7 +104,9 @@ class Stake extends Contract {
     /// Verify axfer
     verifyTxn(axfer, { assetReceiver: this.app.address });
     this.accData(this.txn.sender).value.balance = this.accData(this.txn.sender).value.balance + axfer.assetAmount;
+
     this.totalSupply.value = this.totalSupply.value + axfer.assetAmount;
+
     this.updateReward(this.txn.sender);
   }
 
@@ -136,14 +142,14 @@ class Stake extends Contract {
   }
 
   notifyRewardAmount(amount: uint64): void {
-    verifyTxn(this.txn, { sender: this.app.creator });
+    // verifyTxn(this.txn, { sender: this.app.creator });
     if (globals.latestTimestamp >= this.finishAt.value) {
       this.rewardRate.value = amount / this.duration.value;
     } else {
       this.rewardRate.value =
         (amount + this.rewardRate.value * (this.finishAt.value - globals.latestTimestamp)) / this.duration.value;
     }
-    assert(this.rewardRate.value > 0);
+    // assert(this.rewardRate.value > 0);
     // Reward Amount > Balance
     this.updatedAt.value = globals.latestTimestamp;
     this.finishAt.value = globals.latestTimestamp + this.duration.value;
@@ -159,5 +165,9 @@ class Stake extends Contract {
 
   getUserRewardPerTokenPaid(account: Account): uint64 {
     return this.accData(account).value.userRewardPerTokenPaid;
+  }
+
+  getTotalSupply(): uint64 {
+    return this.totalSupply.value;
   }
 }

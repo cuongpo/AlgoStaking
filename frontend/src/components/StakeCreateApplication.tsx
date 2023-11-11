@@ -20,6 +20,7 @@ type Props = {
   buttonNode: ReactNode
   typedClient: StakeClient
   duration: StakeCreateApplicationArgs['duration']
+  setAppID: (appID: number) => void
 }
 
 const StakeCreateApplication = (props: Props) => {
@@ -36,7 +37,11 @@ const StakeCreateApplication = (props: Props) => {
         duration,
       },
       { sender },
-    )
+    );
+
+    const {appId} = await props.typedClient.appClient.getAppReference();
+
+    props.setAppID(Number(appId));
     setLoading(false)
   }
 
