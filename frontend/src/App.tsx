@@ -9,9 +9,14 @@ import ConnectWallet from './components/ConnectWallet'
 import Transact from './components/Transact'
 import { getAlgodConfigFromViteEnvironment, getKmdConfigFromViteEnvironment } from './utils/network/getAlgoClientConfigs'
 import StakeCreateApplication from './components/StakeCreateApplication'
+import StakeGetBalanceData from './components/StakeGetBalanceData'
+import StakeGetRewardData from './components/StakeGetRewardData'
+import StakeStake from './components/StakeStake'
+
 import StakeFaucet  from './components/StakeFaucet'
 import {StakeClient} from "./contracts/StakeClient"
 import * as algokit from '@algorandfoundation/algokit-utils'
+import { Asset } from 'algosdk/dist/types/client/v2/algod/models/types'
 let providersArray: ProvidersArray
 if (import.meta.env.VITE_ALGOD_NETWORK === '') {
   const kmdConfig = getKmdConfigFromViteEnvironment()
@@ -41,29 +46,27 @@ if (import.meta.env.VITE_ALGOD_NETWORK === '') {
 export default function App() {
   const [openWalletModal, setOpenWalletModal] = useState<boolean>(false)
   const [openDemoModal, setOpenDemoModal] = useState<boolean>(false)
-  const [appID, setAppID] = useState<number>(0)
-  const [duration, setDuration] = useState<number>(0)
+  const [totalReward, setTotalReward] = useState<number>(0)
+  const [totalStaked, setTotalStaked] = useState<number>(0)
+  const [rewardRate, setRewardRate] = useState<number>(0)
   const { activeAddress } = useWallet()
-  const stakingToken = 1014;
-  // Every time the app Id changes
-  // Get the corresponding total Suplly
-  const getDuration = async () => {
+  const stakingToken = 1016;
+  const appID = 1012;
+  const setState = async () => {
     try {
       const state = await typedClient.getGlobalState()
-      setDuration(state.duration!.asNumber)
-    } catch (e) {
-      setDuration("Invalid App Id!")
+      setTotalStaked(state.totalSupply!.asNumber)
+      setRewardRate(state.rewardRate!.asNumber)
+      setTotalReward(state.totalReward!.asNumber)
+    } catch(e) {
+      console.log(e);
     }
   }
-  // Every tim the App Id Changs
-  // call getProposal
+
   useEffect(() => {
-    if (appID === 0) {
-      setDuration('input appId')
-      return
-    }
-    getDuration()
+    setState()
   }, [appID])
+
 
   const toggleWalletModal = () => {
     setOpenWalletModal(!openWalletModal)
@@ -110,13 +113,32 @@ export default function App() {
                   Wallet Connection
                 </button>
                 <div className="divider" />
-                <h1 className="font-bold m-2">Pool info</h1>
+                <h1 className="font-bold m-2">Total Reward</h1>
+                <textarea className="textarea textarea-bordered m-2"  value={totalReward} />
+                <h1 className="font-bold m-2">Total Staked</h1>
+                <textarea className="textarea textarea-bordered m-2"  value={totalStaked} />
+                <h1 className="font-bold m-2">Reward Rate</h1>
+                <textarea className="textarea textarea-bordered m-2"  value={rewardRate} />
+    
+                <div className="divider" />
+                <h1 className="font-bold m-2">My Staked</h1>
+                <StakeGetBalanceData
+                  buttonClass="btn m-2"
+                  buttonLoadingNode={<span className="loading loading-spinner" />}
+                  buttonNode="Call getBalanceData"
+                  typedClient={typedClient}
+                  account={activeAddress}
+                />
+                <h1 className="font-bold m-2">My Reward</h1>
+                <StakeGetRewardData
+                  buttonClass="btn m-2"
+                  buttonLoadingNode={<span className="loading loading-spinner" />}
+                  buttonNode="Call getRewardData"
+                  typedClient={typedClient}
+                  account={activeAddress}
+                />
               </div>
-
-
-              <h1 className="font-bold m-2">Pool Info</h1>
-              <textarea className="textarea textarea-bordered m-2"  value={duration} />
-              <textarea className="textarea textarea-bordered m-2"  value={stakingToken} />
+              
               <div className="divider" />
               {activeAddress && appID !==0 && (
                 <StakeFaucet
@@ -128,6 +150,16 @@ export default function App() {
                   algodClient={algodClient}
                 />
               )}
+
+              <div className="divider" />
+              <StakeStake
+                buttonClass="btn m-2"
+                buttonLoadingNode={<span className="loading loading-spinner" />}
+                buttonNode="Call stake"
+                typedClient={typedClient}
+                axfer={}
+                stakingToken={stakingToken}
+              />
               <ConnectWallet openModal={openWalletModal} closeModal={toggleWalletModal} />
               <Transact openModal={openDemoModal} setModalState={setOpenDemoModal} />
             </div>
