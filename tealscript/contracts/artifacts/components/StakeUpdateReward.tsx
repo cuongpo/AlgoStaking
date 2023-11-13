@@ -4,35 +4,35 @@ import { Stake, StakeClient } from '../contracts/DaoClient'
 import { useWallet } from '@txnlab/use-wallet'
 
 /* Example usage
-<StakeGetReward
+<StakeUpdateReward
   buttonClass="btn m-2"
   buttonLoadingNode={<span className="loading loading-spinner" />}
-  buttonNode="Call getReward"
+  buttonNode="Call updateReward"
   typedClient={typedClient}
-  stakingToken={stakingToken}
+  account={account}
 />
 */
-type StakeGetRewardArgs = Dao['methods']['getReward(asset)void']['argsObj']
+type StakeUpdateRewardArgs = Dao['methods']['updateReward(address)uint64']['argsObj']
 
 type Props = {
   buttonClass: string
   buttonLoadingNode?: ReactNode
   buttonNode: ReactNode
   typedClient: StakeClient
-  stakingToken: StakeGetRewardArgs['stakingToken']
+  account: StakeUpdateRewardArgs['account']
 }
 
-const StakeGetReward = (props: Props) => {
+const StakeUpdateReward = (props: Props) => {
   const [loading, setLoading] = useState<boolean>(false)
   const { activeAddress, signer } = useWallet()
   const sender = { signer, addr: activeAddress! }
 
   const callMethod = async () => {
     setLoading(true)
-    console.log(`Calling getReward`)
-    await props.typedClient.getReward(
+    console.log(`Calling updateReward`)
+    await props.typedClient.updateReward(
       {
-        stakingToken: props.stakingToken,
+        account: props.account,
       },
       { sender },
     )
@@ -46,4 +46,4 @@ const StakeGetReward = (props: Props) => {
   )
 }
 
-export default StakeGetReward
+export default StakeUpdateReward

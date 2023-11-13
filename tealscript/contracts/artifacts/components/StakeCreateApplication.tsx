@@ -12,7 +12,7 @@ import { useWallet } from '@txnlab/use-wallet'
   duration={duration}
 />
 */
-type StakeCreateApplicationArgs = Dao['methods']['createApplication(uint64)void']['argsObj']
+type StakeCreateApplicationArgs = Dao['methods']['createApplication(uint64)address']['argsObj']
 
 type Props = {
   buttonClass: string

@@ -570,19 +570,24 @@ stake:
 	callsub updateReward
 	retsub
 
-// withdraw(uint64)void
+// withdraw(asset,uint64)void
 abi_route_withdraw:
+	// stakingToken: asset
+	txna ApplicationArgs 2
+	btoi
+	txnas Assets
+
 	// amount: uint64
 	txna ApplicationArgs 1
 	btoi
 
-	// execute withdraw(uint64)void
+	// execute withdraw(asset,uint64)void
 	callsub withdraw
 	int 1
 	return
 
 withdraw:
-	proto 1 0
+	proto 2 0
 
 	// contracts/stake.algo.ts:121
 	// assert(amount > 0)
@@ -592,14 +597,14 @@ withdraw:
 	assert
 
 	// contracts/stake.algo.ts:122
-	// assert(this.accData(this.txn.sender).value.balance > amount)
+	// assert(this.accData(this.txn.sender).value.balance >= amount)
 	txn Sender
 	box_get
 	assert
 	extract 0 8
 	btoi
 	frame_dig -1 // amount: uint64
-	>
+	>=
 	assert
 
 	// contracts/stake.algo.ts:123
@@ -948,7 +953,7 @@ call_NoOp:
 	method "updateReward(address)uint64"
 	method "appOptedinAsset(asset)void"
 	method "stake(axfer,asset)void"
-	method "withdraw(uint64)void"
+	method "withdraw(uint64,asset)void"
 	method "getReward(asset)void"
 	method "setRewardsDuration(uint64)void"
 	method "addReward(uint64)void"

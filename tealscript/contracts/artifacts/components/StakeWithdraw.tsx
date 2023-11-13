@@ -10,9 +10,10 @@ import { useWallet } from '@txnlab/use-wallet'
   buttonNode="Call withdraw"
   typedClient={typedClient}
   amount={amount}
+  stakingToken={stakingToken}
 />
 */
-type StakeWithdrawArgs = Dao['methods']['withdraw(uint64)void']['argsObj']
+type StakeWithdrawArgs = Dao['methods']['withdraw(uint64,asset)void']['argsObj']
 
 type Props = {
   buttonClass: string
@@ -20,6 +21,7 @@ type Props = {
   buttonNode: ReactNode
   typedClient: StakeClient
   amount: StakeWithdrawArgs['amount']
+  stakingToken: StakeWithdrawArgs['stakingToken']
 }
 
 const StakeWithdraw = (props: Props) => {
@@ -33,6 +35,7 @@ const StakeWithdraw = (props: Props) => {
     await props.typedClient.withdraw(
       {
         amount: props.amount,
+        stakingToken: props.stakingToken,
       },
       { sender },
     )

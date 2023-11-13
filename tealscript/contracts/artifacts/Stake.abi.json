@@ -140,6 +140,11 @@
           "name": "amount",
           "type": "uint64",
           "desc": ""
+        },
+        {
+          "name": "stakingToken",
+          "type": "asset",
+          "desc": ""
         }
       ],
       "desc": "",
