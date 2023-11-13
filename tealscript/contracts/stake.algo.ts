@@ -31,13 +31,14 @@ class Stake extends Contract {
   bootstrap(): Asset {
     verifyTxn(this.txn, { sender: this.app.creator });
     const stakingToken = sendAssetCreation({
-      configAssetTotal: 10000,
+      configAssetTotal: 100000000,
     });
 
     this.stakingToken.value = stakingToken;
     this.totalSupply.value = 1;
     this.rewardRate.value = 1;
     this.finishAt.value= 0;
+    this.rewardPerTokenStored.value =0;
     return stakingToken;
   }
 
@@ -61,16 +62,13 @@ class Stake extends Contract {
     return this.stakingToken.value;
   }
 
-  createApplication(duration: uint64): void {
+  createApplication(duration: uint64): Address {
     this.duration.value = duration;
+    return this.app.address;
   }
 
   lastTimeRewardApplicable(): uint64 {
-    if (globals.latestTimestamp <= this.finishAt.value) {
-      this.lastTimeReward.value = globals.latestTimestamp;
-    }
-    this.lastTimeReward.value = this.finishAt.value;
-
+    this.lastTimeReward.value = globals.latestTimestamp;
     return this.lastTimeReward.value
   }
 
@@ -79,7 +77,7 @@ class Stake extends Contract {
     if (this.totalSupply.value === 0) {
       return this.rewardPerTokenStored.value;
     }
-    this.rewardPerTokenStored.value = (this.rewardPerTokenStored.value + (this.rewardRate.value * (this.lastTimeReward.value - this.updatedAt.value))/this.totalSupply.value);
+    this.rewardPerTokenStored.value = this.rewardPerTokenStored.value + this.rewardRate.value*1000*(this.lastTimeReward.value - this.updatedAt.value)/this.totalSupply.value;
     return  this.rewardPerTokenStored.value;
   }
 
@@ -92,12 +90,13 @@ class Stake extends Contract {
     return this.accData(account).value.earned;
   }
 
-  private updateReward(account: Address): void {
+  updateReward(account: Address): uint64 {
     this.rewardPerToken();
     this.updatedAt.value = this.lastTimeReward.value;
     this.earned(account);
     this.accData(account).value.rewards = this.accData(account).value.earned;
     this.accData(account).value.userRewardPerTokenPaid = this.rewardPerTokenStored.value;
+    return this.accData(account).value.rewards;
   }
 
   appOptedinAsset(stakingToken: Asset): void {
@@ -118,9 +117,9 @@ class Stake extends Contract {
     this.updateReward(this.txn.sender);
   }
 
-  withdraw(amount: uint64): void {
+  withdraw(amount: uint64, stakingToken: Asset): void {
     assert(amount > 0);
-    assert(this.accData(this.txn.sender).value.balance > amount);
+    assert(this.accData(this.txn.sender).value.balance >= amount);
     this.accData(this.txn.sender).value.balance = this.accData(this.txn.sender).value.balance - amount;
     this.totalSupply.value = this.totalSupply.value - amount;
     sendAssetTransfer({
@@ -138,7 +137,7 @@ class Stake extends Contract {
       sendAssetTransfer({
         xferAsset: this.stakingToken.value,
         assetReceiver: this.txn.sender,
-        assetAmount: reward,
+        assetAmount: reward/1000,
       });
       this.accData(this.txn.sender).value.rewards = 0;
     }
@@ -150,7 +149,7 @@ class Stake extends Contract {
     this.duration.value = duration;
   }
 
-  notifyRewardAmount(amount: uint64): void {
+  addReward(amount: uint64): void {
     // verifyTxn(this.txn, { sender: this.app.creator });
     if (globals.latestTimestamp >= this.finishAt.value) {
       this.rewardRate.value = amount / this.duration.value;
@@ -163,10 +162,6 @@ class Stake extends Contract {
     this.updatedAt.value = globals.latestTimestamp;
     this.finishAt.value = globals.latestTimestamp + this.duration.value;
 
-  }
-
-  getRewardData(account: Account): uint64 {
-    return this.accData(account).value.rewards;
   }
 
   getBalanceData(account: Account): uint64 {

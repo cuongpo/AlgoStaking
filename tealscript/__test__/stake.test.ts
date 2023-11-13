@@ -21,12 +21,12 @@ describe('Stake', () => {
     sender = await algokit.getOrCreateKmdWalletAccount(
       {
         name: 'abc',
-        fundWith: algokit.algos(100),
+        fundWith: algokit.algos(500), 
       },
       algod,
       kmd
     );
-    const duration = BigInt(100);
+    const duration = BigInt(2592000); // 24*60*60*30
     appClient = new StakeClient(
       {
         sender: testAccount,

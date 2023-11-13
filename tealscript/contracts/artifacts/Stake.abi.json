@@ -46,7 +46,7 @@
       ],
       "desc": "",
       "returns": {
-        "type": "void",
+        "type": "address",
         "desc": ""
       }
     },
@@ -70,6 +70,21 @@
     },
     {
       "name": "earned",
+      "args": [
+        {
+          "name": "account",
+          "type": "address",
+          "desc": ""
+        }
+      ],
+      "desc": "",
+      "returns": {
+        "type": "uint64",
+        "desc": ""
+      }
+    },
+    {
+      "name": "updateReward",
       "args": [
         {
           "name": "account",
@@ -135,7 +150,13 @@
     },
     {
       "name": "getReward",
-      "args": [],
+      "args": [
+        {
+          "name": "stakingToken",
+          "type": "asset",
+          "desc": ""
+        }
+      ],
       "desc": "",
       "returns": {
         "type": "void",
@@ -158,7 +179,7 @@
       }
     },
     {
-      "name": "notifyRewardAmount",
+      "name": "addReward",
       "args": [
         {
           "name": "amount",
@@ -169,21 +190,6 @@
       "desc": "",
       "returns": {
         "type": "void",
-        "desc": ""
-      }
-    },
-    {
-      "name": "getRewardData",
-      "args": [
-        {
-          "name": "account",
-          "type": "account",
-          "desc": ""
-        }
-      ],
-      "desc": "",
-      "returns": {
-        "type": "uint64",
         "desc": ""
       }
     },
