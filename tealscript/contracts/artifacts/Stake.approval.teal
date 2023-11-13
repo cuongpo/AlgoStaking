@@ -36,7 +36,7 @@ abi_route_bootstrap:
 bootstrap:
 	proto 1 0
 
-	// contracts/stake.algo.ts:32
+	// contracts/stake.algo.ts:34
 	// verifyTxn(this.txn, { sender: this.app.creator })
 	// verify sender
 	txn Sender
@@ -46,7 +46,7 @@ bootstrap:
 	==
 	assert
 
-	// contracts/stake.algo.ts:33
+	// contracts/stake.algo.ts:35
 	// stakingToken = sendAssetCreation({
 	//       configAssetTotal: 100000000,
 	//     })
@@ -54,7 +54,7 @@ bootstrap:
 	int acfg
 	itxn_field TypeEnum
 
-	// contracts/stake.algo.ts:34
+	// contracts/stake.algo.ts:36
 	// configAssetTotal: 100000000
 	int 100000000
 	itxn_field ConfigAssetTotal
@@ -68,37 +68,37 @@ bootstrap:
 	itxn CreatedAssetID
 	frame_bury -1 // stakingToken: asset
 
-	// contracts/stake.algo.ts:37
+	// contracts/stake.algo.ts:39
 	// this.stakingToken.value = stakingToken
 	byte 0x7374616b696e67546f6b656e // "stakingToken"
 	frame_dig -1 // stakingToken: asset
 	app_global_put
 
-	// contracts/stake.algo.ts:38
+	// contracts/stake.algo.ts:40
 	// this.totalSupply.value = 1
 	byte 0x746f74616c537570706c79 // "totalSupply"
 	int 1
 	app_global_put
 
-	// contracts/stake.algo.ts:39
+	// contracts/stake.algo.ts:41
 	// this.rewardRate.value = 1
 	byte 0x72657761726452617465 // "rewardRate"
 	int 1
 	app_global_put
 
-	// contracts/stake.algo.ts:40
+	// contracts/stake.algo.ts:42
 	// this.finishAt.value= 0
 	byte 0x66696e6973684174 // "finishAt"
 	int 0
 	app_global_put
 
-	// contracts/stake.algo.ts:41
+	// contracts/stake.algo.ts:43
 	// this.rewardPerTokenStored.value =0
 	byte 0x726577617264506572546f6b656e53746f726564 // "rewardPerTokenStored"
 	int 0
 	app_global_put
 
-	// contracts/stake.algo.ts:42
+	// contracts/stake.algo.ts:44
 	// return stakingToken;
 	frame_dig -1 // stakingToken: asset
 	itob
@@ -125,7 +125,7 @@ abi_route_faucet:
 faucet:
 	proto 2 0
 
-	// contracts/stake.algo.ts:46
+	// contracts/stake.algo.ts:48
 	// sendAssetTransfer({
 	//       xferAsset: this.stakingToken.value,
 	//       assetReceiver: this.txn.sender,
@@ -135,18 +135,18 @@ faucet:
 	int axfer
 	itxn_field TypeEnum
 
-	// contracts/stake.algo.ts:47
+	// contracts/stake.algo.ts:49
 	// xferAsset: this.stakingToken.value
 	byte 0x7374616b696e67546f6b656e // "stakingToken"
 	app_global_get
 	itxn_field XferAsset
 
-	// contracts/stake.algo.ts:48
+	// contracts/stake.algo.ts:50
 	// assetReceiver: this.txn.sender
 	txn Sender
 	itxn_field AssetReceiver
 
-	// contracts/stake.algo.ts:49
+	// contracts/stake.algo.ts:51
 	// assetAmount: 1
 	int 1
 	itxn_field AssetAmount
@@ -158,7 +158,7 @@ faucet:
 	// Submit inner transaction
 	itxn_submit
 
-	// contracts/stake.algo.ts:51
+	// contracts/stake.algo.ts:53
 	// acc: accData = {
 	//       balance: 0,
 	//       rewards: 0,
@@ -168,7 +168,7 @@ faucet:
 	byte 0x0000000000000000000000000000000000000000000000000000000000000000
 	frame_bury -2 // acc: accData
 
-	// contracts/stake.algo.ts:57
+	// contracts/stake.algo.ts:59
 	// this.accData(this.txn.sender).value = acc
 	txn Sender
 	byte 0x0000000000000000000000000000000000000000000000000000000000000000 // acc: accData
@@ -185,7 +185,7 @@ abi_route_getStakingToken:
 getStakingToken:
 	proto 0 0
 
-	// contracts/stake.algo.ts:62
+	// contracts/stake.algo.ts:64
 	// return this.stakingToken.value;
 	byte 0x7374616b696e67546f6b656e // "stakingToken"
 	app_global_get
@@ -210,13 +210,13 @@ abi_route_createApplication:
 createApplication:
 	proto 1 0
 
-	// contracts/stake.algo.ts:66
+	// contracts/stake.algo.ts:68
 	// this.duration.value = duration
 	byte 0x6475726174696f6e // "duration"
 	frame_dig -1 // duration: uint64
 	app_global_put
 
-	// contracts/stake.algo.ts:67
+	// contracts/stake.algo.ts:69
 	// return this.app.address;
 	byte 0x151f7c75
 	global CurrentApplicationAddress
@@ -234,13 +234,13 @@ abi_route_lastTimeRewardApplicable:
 lastTimeRewardApplicable:
 	proto 0 0
 
-	// contracts/stake.algo.ts:71
+	// contracts/stake.algo.ts:73
 	// this.lastTimeReward.value = globals.latestTimestamp
 	byte 0x6c61737454696d65526577617264 // "lastTimeReward"
 	global LatestTimestamp
 	app_global_put
 
-	// contracts/stake.algo.ts:72
+	// contracts/stake.algo.ts:74
 	// return this.lastTimeReward.value
 	byte 0x6c61737454696d65526577617264 // "lastTimeReward"
 	app_global_get
@@ -261,12 +261,12 @@ abi_route_rewardPerToken:
 rewardPerToken:
 	proto 0 0
 
-	// contracts/stake.algo.ts:76
+	// contracts/stake.algo.ts:78
 	// this.lastTimeRewardApplicable()
 	callsub lastTimeRewardApplicable
 
 	// if0_condition
-	// contracts/stake.algo.ts:77
+	// contracts/stake.algo.ts:79
 	// this.totalSupply.value === 0
 	byte 0x746f74616c537570706c79 // "totalSupply"
 	app_global_get
@@ -275,7 +275,7 @@ rewardPerToken:
 	bz if0_end
 
 	// if0_consequent
-	// contracts/stake.algo.ts:78
+	// contracts/stake.algo.ts:80
 	// return this.rewardPerTokenStored.value;
 	byte 0x726577617264506572546f6b656e53746f726564 // "rewardPerTokenStored"
 	app_global_get
@@ -287,7 +287,7 @@ rewardPerToken:
 	retsub
 
 if0_end:
-	// contracts/stake.algo.ts:80
+	// contracts/stake.algo.ts:82
 	// this.rewardPerTokenStored.value = this.rewardPerTokenStored.value + this.rewardRate.value*1000*(this.lastTimeReward.value - this.updatedAt.value)/this.totalSupply.value
 	byte 0x726577617264506572546f6b656e53746f726564 // "rewardPerTokenStored"
 	byte 0x726577617264506572546f6b656e53746f726564 // "rewardPerTokenStored"
@@ -308,7 +308,7 @@ if0_end:
 	+
 	app_global_put
 
-	// contracts/stake.algo.ts:81
+	// contracts/stake.algo.ts:83
 	// return  this.rewardPerTokenStored.value;
 	byte 0x726577617264506572546f6b656e53746f726564 // "rewardPerTokenStored"
 	app_global_get
@@ -337,7 +337,7 @@ abi_route_earned:
 earned:
 	proto 1 0
 
-	// contracts/stake.algo.ts:85
+	// contracts/stake.algo.ts:87
 	// this.accData(account).value.earned = (
 	//       (this.accData(account).value.balance * (this.rewardPerTokenStored.value - this.accData(account).value.userRewardPerTokenPaid))
 	//       +
@@ -369,7 +369,7 @@ earned:
 	cover 2
 	box_replace
 
-	// contracts/stake.algo.ts:90
+	// contracts/stake.algo.ts:92
 	// return this.accData(account).value.earned;
 	frame_dig -1 // account: address
 	box_get
@@ -401,23 +401,23 @@ abi_route_updateReward:
 updateReward:
 	proto 1 0
 
-	// contracts/stake.algo.ts:94
+	// contracts/stake.algo.ts:96
 	// this.rewardPerToken()
 	callsub rewardPerToken
 
-	// contracts/stake.algo.ts:95
+	// contracts/stake.algo.ts:97
 	// this.updatedAt.value = this.lastTimeReward.value
 	byte 0x757064617465644174 // "updatedAt"
 	byte 0x6c61737454696d65526577617264 // "lastTimeReward"
 	app_global_get
 	app_global_put
 
-	// contracts/stake.algo.ts:96
+	// contracts/stake.algo.ts:98
 	// this.earned(account)
 	frame_dig -1 // account: address
 	callsub earned
 
-	// contracts/stake.algo.ts:97
+	// contracts/stake.algo.ts:99
 	// this.accData(account).value.rewards = this.accData(account).value.earned
 	int 16
 	frame_dig -1 // account: address
@@ -430,7 +430,7 @@ updateReward:
 	cover 2
 	box_replace
 
-	// contracts/stake.algo.ts:98
+	// contracts/stake.algo.ts:100
 	// this.accData(account).value.userRewardPerTokenPaid = this.rewardPerTokenStored.value
 	int 8
 	byte 0x726577617264506572546f6b656e53746f726564 // "rewardPerTokenStored"
@@ -440,7 +440,7 @@ updateReward:
 	cover 2
 	box_replace
 
-	// contracts/stake.algo.ts:99
+	// contracts/stake.algo.ts:101
 	// return this.accData(account).value.rewards;
 	frame_dig -1 // account: address
 	box_get
@@ -469,7 +469,7 @@ abi_route_appOptedinAsset:
 appOptedinAsset:
 	proto 1 0
 
-	// contracts/stake.algo.ts:103
+	// contracts/stake.algo.ts:105
 	// sendAssetTransfer({
 	//       xferAsset: this.stakingToken.value,
 	//       assetReceiver: this.app.address,
@@ -479,18 +479,18 @@ appOptedinAsset:
 	int axfer
 	itxn_field TypeEnum
 
-	// contracts/stake.algo.ts:104
+	// contracts/stake.algo.ts:106
 	// xferAsset: this.stakingToken.value
 	byte 0x7374616b696e67546f6b656e // "stakingToken"
 	app_global_get
 	itxn_field XferAsset
 
-	// contracts/stake.algo.ts:105
+	// contracts/stake.algo.ts:107
 	// assetReceiver: this.app.address
 	global CurrentApplicationAddress
 	itxn_field AssetReceiver
 
-	// contracts/stake.algo.ts:106
+	// contracts/stake.algo.ts:108
 	// assetAmount: 0
 	int 0
 	itxn_field AssetAmount
@@ -529,7 +529,7 @@ stake:
 	proto 2 0
 
 	// Verify axfer
-	// contracts/stake.algo.ts:112
+	// contracts/stake.algo.ts:114
 	// verifyTxn(axfer, { assetReceiver: this.app.address })
 	// verify assetReceiver
 	frame_dig -1 // axfer: axfer
@@ -538,7 +538,7 @@ stake:
 	==
 	assert
 
-	// contracts/stake.algo.ts:113
+	// contracts/stake.algo.ts:115
 	// this.accData(this.txn.sender).value.balance = this.accData(this.txn.sender).value.balance + axfer.assetAmount
 	int 0
 	txn Sender
@@ -554,7 +554,7 @@ stake:
 	cover 2
 	box_replace
 
-	// contracts/stake.algo.ts:115
+	// contracts/stake.algo.ts:117
 	// this.totalSupply.value = this.totalSupply.value + axfer.assetAmount
 	byte 0x746f74616c537570706c79 // "totalSupply"
 	byte 0x746f74616c537570706c79 // "totalSupply"
@@ -564,7 +564,7 @@ stake:
 	+
 	app_global_put
 
-	// contracts/stake.algo.ts:117
+	// contracts/stake.algo.ts:119
 	// this.updateReward(this.txn.sender)
 	txn Sender
 	callsub updateReward
@@ -589,14 +589,14 @@ abi_route_withdraw:
 withdraw:
 	proto 2 0
 
-	// contracts/stake.algo.ts:121
+	// contracts/stake.algo.ts:123
 	// assert(amount > 0)
 	frame_dig -1 // amount: uint64
 	int 0
 	>
 	assert
 
-	// contracts/stake.algo.ts:122
+	// contracts/stake.algo.ts:124
 	// assert(this.accData(this.txn.sender).value.balance >= amount)
 	txn Sender
 	box_get
@@ -607,7 +607,7 @@ withdraw:
 	>=
 	assert
 
-	// contracts/stake.algo.ts:123
+	// contracts/stake.algo.ts:125
 	// this.accData(this.txn.sender).value.balance = this.accData(this.txn.sender).value.balance - amount
 	int 0
 	txn Sender
@@ -622,7 +622,7 @@ withdraw:
 	cover 2
 	box_replace
 
-	// contracts/stake.algo.ts:124
+	// contracts/stake.algo.ts:126
 	// this.totalSupply.value = this.totalSupply.value - amount
 	byte 0x746f74616c537570706c79 // "totalSupply"
 	byte 0x746f74616c537570706c79 // "totalSupply"
@@ -631,7 +631,7 @@ withdraw:
 	-
 	app_global_put
 
-	// contracts/stake.algo.ts:125
+	// contracts/stake.algo.ts:127
 	// sendAssetTransfer({
 	//       xferAsset: this.stakingToken.value,
 	//       assetReceiver: this.txn.sender,
@@ -641,18 +641,18 @@ withdraw:
 	int axfer
 	itxn_field TypeEnum
 
-	// contracts/stake.algo.ts:126
+	// contracts/stake.algo.ts:128
 	// xferAsset: this.stakingToken.value
 	byte 0x7374616b696e67546f6b656e // "stakingToken"
 	app_global_get
 	itxn_field XferAsset
 
-	// contracts/stake.algo.ts:127
+	// contracts/stake.algo.ts:129
 	// assetReceiver: this.txn.sender
 	txn Sender
 	itxn_field AssetReceiver
 
-	// contracts/stake.algo.ts:128
+	// contracts/stake.algo.ts:130
 	// assetAmount: amount
 	frame_dig -1 // amount: uint64
 	itxn_field AssetAmount
@@ -664,7 +664,7 @@ withdraw:
 	// Submit inner transaction
 	itxn_submit
 
-	// contracts/stake.algo.ts:130
+	// contracts/stake.algo.ts:132
 	// this.updateReward(this.txn.sender)
 	txn Sender
 	callsub updateReward
@@ -687,7 +687,7 @@ abi_route_getReward:
 getReward:
 	proto 2 0
 
-	// contracts/stake.algo.ts:134
+	// contracts/stake.algo.ts:136
 	// reward = this.accData(this.txn.sender).value.rewards
 	txn Sender
 	box_get
@@ -697,7 +697,7 @@ getReward:
 	frame_bury -2 // reward: uint64
 
 	// if1_condition
-	// contracts/stake.algo.ts:135
+	// contracts/stake.algo.ts:137
 	// reward > 0
 	frame_dig -2 // reward: uint64
 	int 0
@@ -705,7 +705,7 @@ getReward:
 	bz if1_end
 
 	// if1_consequent
-	// contracts/stake.algo.ts:137
+	// contracts/stake.algo.ts:139
 	// sendAssetTransfer({
 	//         xferAsset: this.stakingToken.value,
 	//         assetReceiver: this.txn.sender,
@@ -715,18 +715,18 @@ getReward:
 	int axfer
 	itxn_field TypeEnum
 
-	// contracts/stake.algo.ts:138
+	// contracts/stake.algo.ts:140
 	// xferAsset: this.stakingToken.value
 	byte 0x7374616b696e67546f6b656e // "stakingToken"
 	app_global_get
 	itxn_field XferAsset
 
-	// contracts/stake.algo.ts:139
+	// contracts/stake.algo.ts:141
 	// assetReceiver: this.txn.sender
 	txn Sender
 	itxn_field AssetReceiver
 
-	// contracts/stake.algo.ts:140
+	// contracts/stake.algo.ts:142
 	// assetAmount: reward/1000
 	frame_dig -2 // reward: uint64
 	int 1000
@@ -740,7 +740,7 @@ getReward:
 	// Submit inner transaction
 	itxn_submit
 
-	// contracts/stake.algo.ts:142
+	// contracts/stake.algo.ts:144
 	// this.accData(this.txn.sender).value.rewards = 0
 	txn Sender
 	int 16
@@ -764,7 +764,7 @@ abi_route_setRewardsDuration:
 setRewardsDuration:
 	proto 1 0
 
-	// contracts/stake.algo.ts:147
+	// contracts/stake.algo.ts:149
 	// assert(this.txn.sender === this.app.creator)
 	txn Sender
 	txna Applications 0
@@ -773,7 +773,7 @@ setRewardsDuration:
 	==
 	assert
 
-	// contracts/stake.algo.ts:148
+	// contracts/stake.algo.ts:150
 	// assert(globals.latestTimestamp > this.finishAt.value)
 	global LatestTimestamp
 	byte 0x66696e6973684174 // "finishAt"
@@ -781,7 +781,7 @@ setRewardsDuration:
 	>
 	assert
 
-	// contracts/stake.algo.ts:149
+	// contracts/stake.algo.ts:151
 	// this.duration.value = duration
 	byte 0x6475726174696f6e // "duration"
 	frame_dig -1 // duration: uint64
@@ -803,7 +803,7 @@ addReward:
 	proto 1 0
 
 	// if2_condition
-	// contracts/stake.algo.ts:154
+	// contracts/stake.algo.ts:156
 	// globals.latestTimestamp >= this.finishAt.value
 	global LatestTimestamp
 	byte 0x66696e6973684174 // "finishAt"
@@ -812,7 +812,7 @@ addReward:
 	bz if2_else
 
 	// if2_consequent
-	// contracts/stake.algo.ts:155
+	// contracts/stake.algo.ts:157
 	// this.rewardRate.value = amount / this.duration.value
 	byte 0x72657761726452617465 // "rewardRate"
 	frame_dig -1 // amount: uint64
@@ -823,7 +823,7 @@ addReward:
 	b if2_end
 
 if2_else:
-	// contracts/stake.algo.ts:157
+	// contracts/stake.algo.ts:159
 	// this.rewardRate.value =
 	//         (amount + this.rewardRate.value * (this.finishAt.value - globals.latestTimestamp)) / this.duration.value
 	byte 0x72657761726452617465 // "rewardRate"
@@ -842,19 +842,25 @@ if2_else:
 	app_global_put
 
 if2_end:
-	// contracts/stake.algo.ts:162
+	// contracts/stake.algo.ts:164
 	// this.updatedAt.value = globals.latestTimestamp
 	byte 0x757064617465644174 // "updatedAt"
 	global LatestTimestamp
 	app_global_put
 
-	// contracts/stake.algo.ts:163
+	// contracts/stake.algo.ts:165
 	// this.finishAt.value = globals.latestTimestamp + this.duration.value
 	byte 0x66696e6973684174 // "finishAt"
 	global LatestTimestamp
 	byte 0x6475726174696f6e // "duration"
 	app_global_get
 	+
+	app_global_put
+
+	// contracts/stake.algo.ts:166
+	// this.totalReward.value = amount
+	byte 0x746f74616c526577617264 // "totalReward"
+	frame_dig -1 // amount: uint64
 	app_global_put
 	retsub
 
@@ -873,7 +879,7 @@ abi_route_getBalanceData:
 getBalanceData:
 	proto 1 0
 
-	// contracts/stake.algo.ts:168
+	// contracts/stake.algo.ts:170
 	// return this.accData(account).value.balance;
 	frame_dig -1 // account: account
 	box_get
@@ -902,7 +908,7 @@ abi_route_getUserRewardPerTokenPaid:
 getUserRewardPerTokenPaid:
 	proto 1 0
 
-	// contracts/stake.algo.ts:172
+	// contracts/stake.algo.ts:174
 	// return this.accData(account).value.userRewardPerTokenPaid;
 	frame_dig -1 // account: account
 	box_get
@@ -926,7 +932,7 @@ abi_route_getTotalSupply:
 getTotalSupply:
 	proto 0 0
 
-	// contracts/stake.algo.ts:176
+	// contracts/stake.algo.ts:178
 	// return this.totalSupply.value;
 	byte 0x746f74616c537570706c79 // "totalSupply"
 	app_global_get

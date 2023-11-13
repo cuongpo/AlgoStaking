@@ -25,6 +25,8 @@ class Stake extends Contract {
 
   totalSupply = GlobalStateKey<uint64>();
 
+  totalReward = GlobalStateKey<uint64>();
+
   accData = BoxMap<Address, accData>({ });
 
   // mint Token
@@ -127,7 +129,7 @@ class Stake extends Contract {
       assetReceiver: this.txn.sender,
       assetAmount: amount,
     });
-    this.updateReward(this.txn.sender);
+    this.updateReward(this.txn.sender); 
   }
 
   getReward(stakingToken: Asset): void {
@@ -161,7 +163,7 @@ class Stake extends Contract {
     // Reward Amount > Balance
     this.updatedAt.value = globals.latestTimestamp;
     this.finishAt.value = globals.latestTimestamp + this.duration.value;
-
+    this.totalReward.value = amount;
   }
 
   getBalanceData(account: Account): uint64 {
